@@ -1,0 +1,18 @@
+<div class="app-shell">
+  @if (router.url === '/') {
+    <button class="logout-floating" (click)="logout()">Cerrar sesión</button>
+  } @else {
+    <header class="topbar">
+      <a routerLink="/" class="topbar-brand"><img src="/logo/logo.png" alt="Retro Inventory" class="topbar-logo" /></a>
+      <nav class="topbar-nav">
+        <a routerLink="/consoles" routerLinkActive="active" class="nav-link">Consolas</a>
+        <a routerLink="/games" routerLinkActive="active" class="nav-link">Juegos</a>
+        <a routerLink="/accessories" routerLinkActive="active" class="nav-link">Accesorios</a>
+      </nav>
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    </header>
+  }
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

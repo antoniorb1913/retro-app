@@ -1,0 +1,79 @@
+<div class="page-header">
+  <h2>Accesorios</h2>
+  <a routerLink="/accessories/new" class="btn-new">+ Nuevo</a>
+</div>
+
+<div class="filters-bar">
+  <input type="text" placeholder="Buscar accesorios..." (input)="onSearch($any($event.target).value)" />
+  <select (change)="onPlatformChange($any($event.target).value)">
+    <option value="">Todas las plataformas</option>
+    @for (p of platforms; track p) {
+      <option [value]="p">{{ platformLabels[p] }}</option>
+    }
+  </select>
+  @if (!loading() && accessories().length > 0) {
+    <span class="price-total">Total: {{ totalPrice() | currency:'EUR':'symbol':'1.2-2' }}</span>
+  }
+</div>
+
+@if (loading()) {
+  <div class="skeleton-table">
+    <div class="skeleton-header">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+    @for (row of [1,2,3,4,5]; track row) {
+      <div class="skeleton-row">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    }
+  </div>
+} @else if (error()) {
+  <p class="error-text">{{ error() }}</p>
+} @else if (accessories().length === 0) {
+  <p class="empty-text">No hay accesorios registrados</p>
+} @else {
+  @for (p of [currentPage()]; track p) {
+  <div class="table-wrapper">
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th (click)="toggleOrder('name')">Nombre</th>
+          <th (click)="toggleOrder('platform')">Plataforma</th>
+          <th (click)="toggleOrder('status')">Estado</th>
+          <th (click)="toggleOrder('price')">Precio</th>
+          <th>Completo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of paginatedAccessories(); track item.id) {
+          <tr>
+            <td><a [routerLink]="['/accessories', item.id]" class="item-link">{{ item.name }}</a></td>
+            <td>{{ item.platform_display || '—' }}</td>
+            <td><span class="badge status-{{ item.status.toLowerCase() }}">{{ item.status_display }}</span></td>
+            <td>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</td>
+            <td><span class="badge" [class.badge-complete]="item.complete" [class.badge-incomplete]="!item.complete">{{ item.complete ? 'Sí' : 'No' }}</span></td>
+            <td class="actions">
+              <a [routerLink]="['/accessories', item.id, 'edit']" class="btn-sm">Editar</a>
+              <button (click)="deleteItem(item.id)" class="btn-sm btn-danger">Eliminar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+  <app-pagination [totalItems]="totalItems()" [pageSize]="pageSize" [currentPage]="currentPage()" (pageChange)="currentPage.set($event)" />
+}

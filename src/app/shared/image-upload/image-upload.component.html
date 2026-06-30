@@ -1,0 +1,21 @@
+<div class="upload-area">
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    hidden
+    (change)="onFileSelected($any($event.target).files)"
+  />
+
+  @if (uploading()) {
+    <p class="upload-status">Subiendo imagen...</p>
+  } @else if (error()) {
+    <div class="upload-error">
+      <span>{{ error() }}</span>
+      <button (click)="error.set('')" class="dismiss">✕</button>
+    </div>
+    <button type="button" class="upload-btn" (click)="fileInput.click()">Seleccionar archivo</button>
+  } @else {
+    <button type="button" class="upload-btn" (click)="fileInput.click()">+ Añadir imagen</button>
+  }
+</div>

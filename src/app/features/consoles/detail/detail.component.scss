@@ -1,0 +1,37 @@
+:host {
+  --page-accent: #38BDF8;
+  --page-accent-rgb: 56, 189, 248;
+  --page-accent-2: #6366F1;
+  --page-accent-2-rgb: 99, 102, 241;
+}
+
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.detail-images {
+  position: sticky;
+  top: 2rem;
+}
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-section {
+  h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+}

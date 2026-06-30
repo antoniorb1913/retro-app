@@ -1,0 +1,24 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1 class="sidebar-title">Retro<br>Inventory</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/consoles" routerLinkActive="active" class="nav-link">
+        Consolas
+      </a>
+      <a routerLink="/games" routerLinkActive="active" class="nav-link">
+        Juegos
+      </a>
+      <a routerLink="/accessories" routerLinkActive="active" class="nav-link">
+        Accesorios
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

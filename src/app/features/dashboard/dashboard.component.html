@@ -1,0 +1,27 @@
+<div class="dashboard">
+  <img src="/logo/logo.png" alt="Retro Inventory" class="dashboard-logo" />
+
+  @if (loading()) {
+    <p class="loading-text">Cargando...</p>
+  } @else {
+    <div class="stats-grid">
+      <a routerLink="/consoles" class="stat-card">
+        <span class="stat-card-label">CONSOLAS</span>
+        <span class="stat-card-number">{{ stats().consoles }}</span>
+      </a>
+      <a routerLink="/games" class="stat-card">
+        <span class="stat-card-label">JUEGOS</span>
+        <span class="stat-card-number">{{ stats().games }}</span>
+      </a>
+      <a routerLink="/accessories" class="stat-card">
+        <span class="stat-card-label">ACCESORIOS</span>
+        <span class="stat-card-number">{{ stats().accessories }}</span>
+      </a>
+    </div>
+
+    <div class="total-row">
+      <span class="total-label">Total invertido</span>
+      <span class="total-amount">{{ totals().consoles + totals().games + totals().accessories | currency:'EUR':'symbol':'1.2-2' }}</span>
+    </div>
+  }
+</div>

@@ -1,0 +1,130 @@
+<div class="form-page">
+  <a [routerLink]="isEdit() ? ['/consoles', id] : '/consoles'" class="back-link">
+    ← {{ isEdit() ? 'Volver al detalle' : 'Volver a consolas' }}
+  </a>
+
+  <h2>{{ isEdit() ? 'Editar consola' : 'Nueva consola' }}</h2>
+
+  @if (error()) {
+    <div class="form-error">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="retro-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input id="name" type="text" formControlName="name" placeholder="Ej: PlayStation 2" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="field-error">El nombre es requerido</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="edition">Edición</label>
+        <input id="edition" type="text" formControlName="edition" placeholder="Ej: Fat, Slim, Edición Limitada..." />
+      </div>
+
+      <div class="form-group">
+        <label for="model">Modelo</label>
+        <input id="model" type="text" formControlName="model" placeholder="Ej: SCPH-30004" />
+      </div>
+
+      <div class="form-group">
+        <label for="platform">Plataforma</label>
+        <select id="platform" formControlName="platform">
+          <option value="">— Seleccionar —</option>
+          @for (p of platforms; track p) {
+            <option [value]="p">{{ platformLabels[p] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="region">Región</label>
+        <input id="region" type="text" formControlName="region" placeholder="Ej: PAL ESPAÑA" />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Estado *</label>
+        <select id="status" formControlName="status">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ statusLabels[s] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Precio (€)</label>
+        <input id="price" type="number" step="0.01" formControlName="price" placeholder="0.00" />
+      </div>
+
+      <div class="form-group">
+        <label for="acquisitionDate">Fecha de adquisición</label>
+        <input id="acquisitionDate" type="date" formControlName="acquisition_date" />
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="complete" />
+          Completo (tiene todos los componentes)
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción</label>
+      <textarea id="description" formControlName="description" rows="4" placeholder="Descripción del artículo..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Componentes faltantes</label>
+      @if (componentsDisabled()) {
+        <p class="muted">Artículo completo o precintado — no requiere componentes</p>
+      } @else {
+        @if (availableComponents().length === 0) {
+          <p class="muted">Cargando componentes...</p>
+        } @else {
+          <div class="checkbox-grid">
+            @for (comp of availableComponents(); track comp.id) {
+              <label class="checkbox-item">
+                <input type="checkbox" [value]="comp.id" (change)="toggleComponent(comp.id, $event)" [checked]="selectedComponentIds().includes(comp.id)" />
+                {{ comp.name }}
+              </label>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Imágenes</label>
+      @if (images().length > 0) {
+        <div class="image-grid">
+          @for (img of images(); track img.id) {
+            <div class="image-item">
+              <img [src]="img.image" class="image-thumb" alt="" />
+              <button type="button" class="image-delete" (click)="deleteImage(img.id)" [disabled]="deletingImageId() === img.id">✕</button>
+            </div>
+          }
+        </div>
+      }
+      @if (isEdit()) {
+        <app-image-upload contentTypeModel="console" [objectId]="id" (uploaded)="onImageUploaded()" />
+      } @else {
+        <div class="upload-area">
+          <input #fileInput type="file" accept="image/*" hidden (change)="onCreateUpload($any($event.target).files)" />
+          <button type="button" class="upload-btn" (click)="fileInput.click()" [disabled]="uploadingImage()">
+            {{ uploadingImage() ? 'Creando y subiendo...' : '+ Añadir imagen' }}
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="submitting()">
+        {{ submitting() ? 'Guardando...' : (isEdit() ? 'Guardar cambios' : 'Crear consola') }}
+      </button>
+      <a [routerLink]="isEdit() ? ['/consoles', id] : '/consoles'" class="btn-cancel">Cancelar</a>
+    </div>
+  </form>
+</div>

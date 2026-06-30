@@ -1,0 +1,132 @@
+<div class="detail">
+  <a routerLink="/consoles" class="back-link">← Volver a consolas</a>
+
+  @if (loading()) {
+    <div class="skeleton-detail">
+      <div class="skeleton-image-area">
+        <div class="skeleton"></div>
+      </div>
+      <div class="skeleton-info">
+        <div class="skeleton-card">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-dl">
+            @for (row of [1,2,3,4,5,6,7,8]; track row) {
+              <div class="skeleton-dl-row">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line" style="width:90%"></div>
+          <div class="skeleton-line" style="width:65%"></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <p class="error-text">{{ error() }}</p>
+  } @else if (console(); as item) {
+    <div class="detail-header">
+      <h2>{{ item.name }}</h2>
+      <div class="detail-actions">
+        <a [routerLink]="['/consoles', item.id, 'edit']" class="btn-sm">Editar</a>
+        <button (click)="deleteConsole(item.id)" class="btn-sm btn-danger">Eliminar</button>
+      </div>
+    </div>
+
+    <div class="detail-content">
+      <div class="detail-images">
+        @if (item.images.length > 0) {
+          <div class="carousel">
+            <button class="carousel-btn" (click)="prevImage()" [disabled]="currentIndex() === 0">‹</button>
+            <div class="carousel-viewport">
+              <img
+                [src]="item.images[currentIndex()].image"
+                [alt]="item.name"
+                class="carousel-image"
+                (click)="openLightbox()"
+              />
+            </div>
+            <button class="carousel-btn" (click)="nextImage()" [disabled]="currentIndex() === item.images.length - 1">›</button>
+          </div>
+          <div class="carousel-dots">
+            @for (img of item.images; track img.id; let i = $index) {
+              <button
+                class="dot"
+                [class.active]="i === currentIndex()"
+                (click)="currentIndex.set(i)"
+              ></button>
+            }
+          </div>
+        } @else {
+          <div class="no-images">
+            <p>Sin imágenes</p>
+          </div>
+        }
+      </div>
+
+      <div class="detail-info">
+        <div class="card detail-section">
+          <h3>Información general</h3>
+          <dl class="detail-list">
+            <div><dt>Modelo</dt><dd>{{ item.model || '—' }}</dd></div>
+            <div><dt>Edición</dt><dd>{{ item.edition || '—' }}</dd></div>
+            <div><dt>Plataforma</dt><dd>{{ item.platform_display || '—' }}</dd></div>
+            <div><dt>Región</dt><dd>{{ item.region }}</dd></div>
+            <div>
+              <dt>Estado</dt>
+              <dd><span class="badge status-{{ item.status.toLowerCase() }}">{{ item.status_display }}</span></dd>
+            </div>
+            <div><dt>Precio</dt><dd>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</dd></div>
+            <div><dt>Fecha adq.</dt><dd>{{ item.acquisition_date ? (item.acquisition_date | date) : '—' }}</dd></div>
+            <div>
+              <dt>Completo</dt>
+              <dd>
+                <span class="badge" [class.badge-complete]="item.complete" [class.badge-incomplete]="!item.complete">
+                  {{ item.complete ? 'Sí' : 'No' }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="card detail-section">
+          <h3>Descripción</h3>
+          <p class="description-text">{{ item.description || 'Sin descripción' }}</p>
+        </div>
+
+        <div class="card detail-section">
+          <h3>Componentes faltantes</h3>
+          @if (item.missing_components.length === 0) {
+            <p class="muted">No tiene componentes faltantes</p>
+          } @else {
+            <ul class="component-list">
+              @for (comp of item.missing_components; track comp.id) {
+                <li>{{ comp.name }}</li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@if (lightboxOpen()) {
+  <div class="lightbox" (click)="closeLightbox()">
+    <button class="lightbox-close" (click)="closeLightbox()">✕</button>
+    <button class="lightbox-nav lightbox-prev" (click)="prevImage(); $event.stopPropagation()">‹</button>
+    <img
+      [src]="console()?.images?.[currentIndex()]?.image"
+      class="lightbox-image"
+      (click)="$event.stopPropagation()"
+    />
+    <button class="lightbox-nav lightbox-next" (click)="nextImage(); $event.stopPropagation()">›</button>
+  </div>
+}

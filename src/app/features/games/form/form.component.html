@@ -1,0 +1,93 @@
+<div class="form-page">
+  <a [routerLink]="isEdit() ? ['/games', id] : '/games'" class="back-link">← {{ isEdit() ? 'Volver al detalle' : 'Volver a juegos' }}</a>
+  <h2>{{ isEdit() ? 'Editar juego' : 'Nuevo juego' }}</h2>
+  @if (error()) { <div class="form-error">{{ error() }}</div> }
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="retro-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input id="name" type="text" formControlName="name" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) { <span class="field-error">Requerido</span> }
+      </div>
+      <div class="form-group">
+        <label for="edition">Edición</label>
+        <input id="edition" type="text" formControlName="edition" placeholder="Ej: Special Edition, Platinum, Black Label..." />
+      </div>
+      <div class="form-group">
+        <label for="platform">Plataforma</label>
+        <select id="platform" formControlName="platform">
+          <option value="">— Seleccionar —</option>
+          @for (p of platforms; track p) { <option [value]="p">{{ platformLabels[p] }}</option> }
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="region">Región</label>
+        <input id="region" type="text" formControlName="region" />
+      </div>
+      <div class="form-group">
+        <label for="status">Estado *</label>
+        <select id="status" formControlName="status">
+          @for (s of statuses; track s) { <option [value]="s">{{ statusLabels[s] }}</option> }
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="price">Precio (€)</label>
+        <input id="price" type="number" step="0.01" formControlName="price" />
+      </div>
+      <div class="form-group">
+        <label for="acquisitionDate">Fecha adq.</label>
+        <input id="acquisitionDate" type="date" formControlName="acquisition_date" />
+      </div>
+      <div class="form-group checkbox-group">
+        <label><input type="checkbox" formControlName="complete" /> Completo</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description">Descripción</label>
+      <textarea id="description" formControlName="description" rows="4"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Componentes faltantes</label>
+      @if (componentsDisabled()) {
+        <p class="muted">Artículo completo o precintado — no requiere componentes</p>
+      } @else {
+        @if (availableComponents().length === 0) { <p class="muted">Cargando...</p> }
+        @else {
+          <div class="checkbox-grid">
+            @for (comp of availableComponents(); track comp.id) {
+              <label class="checkbox-item">
+                <input type="checkbox" [value]="comp.id" (change)="toggleComponent(comp.id, $event)" [checked]="selectedComponentIds().includes(comp.id)" />
+                {{ comp.name }}
+              </label>
+            }
+          </div>
+        }
+      }
+    </div>
+    <div class="form-group">
+      <label>Imágenes</label>
+      @if (images().length > 0) {
+        <div class="image-grid">
+          @for (img of images(); track img.id) {
+            <div class="image-item">
+              <img [src]="img.image" class="image-thumb" alt="" />
+              <button type="button" class="image-delete" (click)="deleteImage(img.id)" [disabled]="deletingImageId() === img.id">✕</button>
+            </div>
+          }
+        </div>
+      }
+      @if (isEdit()) {
+        <app-image-upload contentTypeModel="game" [objectId]="id" (uploaded)="onImageUploaded()" />
+      } @else {
+        <div class="upload-area">
+          <input #fileInput type="file" accept="image/*" hidden (change)="onCreateUpload($any($event.target).files)" />
+          <button type="button" class="upload-btn" (click)="fileInput.click()" [disabled]="uploadingImage()">{{ uploadingImage() ? 'Creando y subiendo...' : '+ Añadir imagen' }}</button>
+        </div>
+      }
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="submitting()">{{ submitting() ? 'Guardando...' : (isEdit() ? 'Guardar cambios' : 'Crear juego') }}</button>
+      <a [routerLink]="isEdit() ? ['/games', id] : '/games'" class="btn-cancel">Cancelar</a>
+    </div>
+  </form>
+</div>

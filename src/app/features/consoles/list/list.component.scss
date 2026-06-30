@@ -1,0 +1,12 @@
+:host {
+  --page-accent: #38BDF8;
+  --page-accent-rgb: 56, 189, 248;
+  --page-accent-2: #6366F1;
+  --page-accent-2-rgb: 99, 102, 241;
+}
+
+/* All styles via global CSS variables and classes */
+
+.actions {
+  justify-content: flex-end;
+}
