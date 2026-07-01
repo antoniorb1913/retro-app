@@ -6,7 +6,7 @@ import type { LoginRequest, TokenResponse, RefreshResponse } from '../models/aut
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/api/api`;
+  private readonly apiUrl = `${environment.apiUrl}/api`;
   private readonly accessTokenKey = 'access_token';
   private readonly refreshTokenKey = 'refresh_token';
 
