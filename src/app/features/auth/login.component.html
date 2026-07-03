@@ -9,12 +9,12 @@
 
     <form (ngSubmit)="login()" class="login-form">
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="username">Email</label>
         <input
-          id="email"
-          type="email"
-          [(ngModel)]="email"
-          name="email"
+          id="username"
+          type="text"
+          [(ngModel)]="username"
+          name="username"
           placeholder="tu@email.com"
           required
           autocomplete="email"
