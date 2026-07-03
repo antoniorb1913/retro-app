@@ -13,13 +13,13 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  protected username = '';
+  protected email = '';
   protected password = '';
   protected loading = signal(false);
   protected error = signal('');
 
   protected login(): void {
-    if (!this.username || !this.password) {
+    if (!this.email || !this.password) {
       this.error.set('Email y contraseña son requeridos');
       return;
     }
@@ -27,7 +27,7 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
 
-    this.auth.login({ username: this.username, password: this.password }).subscribe({
+    this.auth.login({ username: this.email, password: this.password }).subscribe({
       next: () => this.router.navigate(['/']),
       error: () => {
         this.loading.set(false);
