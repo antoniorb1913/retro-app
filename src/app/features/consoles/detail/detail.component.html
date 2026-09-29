@@ -85,6 +85,8 @@
             </div>
             <div><dt>Precio</dt><dd>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</dd></div>
             <div><dt>Fecha adq.</dt><dd>{{ item.acquisition_date ? (item.acquisition_date | date) : '—' }}</dd></div>
+            <div><dt>Tienda</dt><dd>{{ storeLabel(item.store) }}</dd></div>
+            <div><dt>Protección</dt><dd>{{ protectiveLabels[item.protective] || '—' }}</dd></div>
             <div>
               <dt>Completo</dt>
               <dd>

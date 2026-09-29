@@ -63,6 +63,8 @@
             <div><dt>Estado</dt><dd><span class="badge status-{{ item.status.toLowerCase() }}">{{ item.status_display }}</span></dd></div>
             <div><dt>Precio</dt><dd>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</dd></div>
             <div><dt>Fecha adq.</dt><dd>{{ item.acquisition_date ? (item.acquisition_date | date) : '—' }}</dd></div>
+            <div><dt>Tienda</dt><dd>{{ storeLabel(item.store) }}</dd></div>
+            <div><dt>Protección</dt><dd>{{ protectiveLabels[item.protective] || '—' }}</dd></div>
             <div><dt>Completo</dt><dd><span class="badge" [class.badge-complete]="item.complete" [class.badge-incomplete]="!item.complete">{{ item.complete ? 'Sí' : 'No' }}</span></dd></div>
           </dl>
         </div>

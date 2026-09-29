@@ -2,6 +2,8 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConsoleService } from '../console.service';
+import { ProtectiveLabels } from '../../../models/protective.enum';
+import { StoreLabels } from '../../../models/store.enum';
 import type { Console } from '../../../models/console.interface';
 
 @Component({
@@ -20,6 +22,20 @@ export class ConsoleDetailComponent implements OnInit {
   protected error = signal('');
   protected currentIndex = signal(0);
   protected lightboxOpen = signal(false);
+
+  protected readonly storeLabels = StoreLabels;
+  protected readonly protectiveLabels = ProtectiveLabels;
+
+  /**
+   * Devuelve la tienda lista para mostrar.
+   * El backend guarda '-' (o cadena vacía) cuando el artículo no tiene tienda asignada, así que
+   * en ese caso se muestra un guion en lugar del valor crudo.
+   */
+  protected storeLabel(store: string | null): string {
+    const valor = (store ?? '').trim();
+    if (!valor || valor === '-') return '—';
+    return this.storeLabels[valor] ?? valor;
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

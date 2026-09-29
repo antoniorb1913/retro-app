@@ -13,3 +13,5 @@ export type {
 export type { PaginatedResponse } from './pagination.interface';
 export { ItemStatus, ItemStatusLabels } from './item-status.enum';
 export { Platform, PlatformLabels } from './platform.enum';
+export { Protective, ProtectiveLabels } from './protective.enum';
+export { Store, StoreLabels } from './store.enum';

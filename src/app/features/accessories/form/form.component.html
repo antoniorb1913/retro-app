@@ -34,6 +34,19 @@
         <label for="acquisitionDate">Fecha adq.</label>
         <input id="acquisitionDate" type="date" formControlName="acquisition_date" />
       </div>
+      <div class="form-group">
+        <label for="store">Tienda (dónde se compró)</label>
+        <select id="store" formControlName="store">
+          <option value="">— No especificado —</option>
+          @for (s of stores; track s) { <option [value]="s">{{ storeLabels[s] }}</option> }
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="protective">Protección</label>
+        <select id="protective" formControlName="protective">
+          @for (p of protectives; track p) { <option [value]="p">{{ protectiveLabels[p] }}</option> }
+        </select>
+      </div>
       <div class="form-group checkbox-group">
         <label><input type="checkbox" formControlName="complete" /> Completo</label>
       </div>

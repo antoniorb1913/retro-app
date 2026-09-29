@@ -1,5 +1,6 @@
 import { ItemStatus } from './item-status.enum';
 import { Platform } from './platform.enum';
+import { Protective } from './protective.enum';
 import { MissingComponent } from './missing-component.interface';
 import { ItemImage } from './item-image.interface';
 
@@ -15,6 +16,9 @@ export interface ItemBase {
   region: string;
   platform: Platform | null;
   platform_display: string | null;
+  /** Tienda donde se compró. El backend usa '-' cuando no se ha indicado ninguna. */
+  store: string;
+  protective: Protective;
   complete: boolean;
   missing_components: MissingComponent[];
   images: ItemImage[];
@@ -31,6 +35,9 @@ export interface ItemBaseWrite {
   description?: string | null;
   region?: string;
   platform?: Platform | null;
+  /** Cadena vacía significa "no especificado"; se envía '-' igual que hace el backend. */
+  store?: string;
+  protective?: Protective;
   complete?: boolean;
   missing_component_ids?: number[];
 }
