@@ -34,9 +34,9 @@ export class DashboardComponent implements OnInit {
           accessories: data.accessories.length,
         });
         this.totals.set({
-          consoles: data.consoles.reduce((s, c) => s + (Number(c.price) || 0), 0),
-          games: data.games.reduce((s, g) => s + (Number(g.price) || 0), 0),
-          accessories: data.accessories.reduce((s, a) => s + (Number(a.price) || 0), 0),
+          consoles: data.consoles.reduce((s, c) => s + (Number(c.total_price ?? c.price) || 0), 0),
+          games: data.games.reduce((s, g) => s + (Number(g.total_price ?? g.price) || 0), 0),
+          accessories: data.accessories.reduce((s, a) => s + (Number(a.total_price ?? a.price) || 0), 0),
         });
         this.loading.set(false);
       },
