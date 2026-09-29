@@ -5,6 +5,7 @@
 
 <div class="filters-bar">
   <input
+    #searchInput
     type="text"
     placeholder="Buscar consolas..."
     (input)="onSearch($any($event.target).value)"
@@ -15,6 +16,9 @@
       <option [value]="p">{{ platformLabels[p] }}</option>
     }
   </select>
+  @if (hasActiveFilters()) {
+    <button type="button" class="btn-clear" (click)="clearFilters(searchInput)">✕ Borrar filtros</button>
+  }
   @if (!loading() && consoles().length > 0) {
     <span class="price-total">Total: {{ totalPrice() | currency:'EUR':'symbol':'1.2-2' }}</span>
   }

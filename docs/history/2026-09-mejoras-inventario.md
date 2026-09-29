@@ -136,6 +136,128 @@ Solo se anotan aquí las tareas **verificadas y confirmadas por el humano**.
 
 ---
 
+## C1. Mantener los filtros al volver a la lista
+
+- **¿Qué realiza?:** cuando el usuario filtra una lista (buscador, plataforma u orden), entra en un
+  artículo para verlo y vuelve a la lista, **los filtros siguen puestos** y la lista se recarga ya
+  filtrada. Funciona en las tres listas: consolas, juegos y accesorios.
+
+- **¿Por qué?:** los filtros vivían en la memoria del componente de la lista. Al entrar en un
+  detalle, Angular destruye ese componente, y al volver lo crea de cero: había que filtrar otra vez
+  desde el principio **cada vez** que se miraba un artículo. Era la molestia de uso más repetida de
+  la aplicación.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/core/list-filter-state.service.ts` (líneas 1-60: servicio nuevo; interfaz
+    `ListFilterState` en la 12, tipo `ListSection` en la 19, clase en la 22, métodos `get` 35,
+    `save` 40, `markVisited` 45 e `isReturning` 53)
+  - `retro-app/src/app/features/consoles/list/list.component.ts` (línea 20: servicio inyectado;
+    45: `restoreFilters()` en `ngOnInit`; 66-77: `restoreFilters()`; 79-84: `saveFilters()`)
+  - `retro-app/src/app/features/games/list/list.component.ts` (19, 41, 54-65 y 67-72)
+  - `retro-app/src/app/features/accessories/list/list.component.ts` (19, 38, 50-61 y 63-68)
+
+- **Cómo verificar (comprobado por el humano el 29/09/2026):**
+  1. Reiniciar el frontend (`ng serve` no detecta archivos nuevos como el servicio).
+  2. En **Consolas**, elegir una plataforma o escribir en el buscador → la lista se filtra.
+  3. Entrar en un artículo y pulsar **atrás** en el navegador (o el enlace de volver).
+  4. Debe aparecer la lista **ya filtrada**, con la plataforma seleccionada en el desplegable.
+  5. Repetir con el orden (por precio, por nombre) y en **Juegos** y **Accesorios**.
+  6. Cerrar el navegador y volver a entrar: la lista sale completa (los filtros viven en memoria).
+
+- **Tests añadidos:** no aplica. El frontend no tiene todavía infraestructura de tests (tarea E1 del
+  plan); la verificación es manual. El backend no se ha tocado.
+
+- **Rama de trabajo:** `mejoras-inventario` (`retro-app`).
+
+- **Cómo funciona (para quien lo lea en el futuro):** el servicio guarda el último filtro de cada
+  lista **en memoria** (no en la URL, no en `localStorage`). Al entrar en una lista, si ya se había
+  visitado antes en la misma sesión, se recupera el filtro; si es la primera visita, la lista se
+  muestra completa como siempre. El orden de las llamadas en `ngOnInit` es importante: primero
+  `restoreFilters()` y después la carga, porque la primera petición ya debe llevar el filtro.
+
+- **Deuda conocida:** al volver, la lista está filtrada **pero el cuadro de búsqueda aparece vacío**
+  (la plataforma y el orden sí se ven). Sincronizar el texto del buscador obliga a enlazarlo al
+  componente, que es precisamente lo que rompió el intento anterior (ver nota al final), así que se
+  dejó fuera a propósito. Ver la tarea futura propuesta al final de este documento.
+
+- **Estado:** ✅ Completada — confirmada por el humano el 29 de septiembre de 2026.
+
+---
+
+## C2. Botón "Borrar filtros"
+
+- **¿Qué realiza?:** añade un botón **"✕ Borrar filtros"** en la barra de filtros de las tres
+  listas. Quita todos los filtros de una vez (buscador, plataforma y orden), deja la barra limpia y
+  recarga la lista completa. El botón **solo aparece si hay algún filtro puesto**.
+
+- **¿Por qué?:** con los filtros ahora persistente (C1), hacía falta una forma rápida de volver a
+  verlo todo sin tener que limpiar campo por campo y sin recargar la página. Además evita la
+  situación confusa de "no veo mis artículos" cuando hay un filtro olvidado.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/features/consoles/list/list.component.html` (línea 8: referencia
+    `#searchInput`; líneas 19-21: el botón)
+  - `retro-app/src/app/features/games/list/list.component.html` (líneas 7 y 14-16)
+  - `retro-app/src/app/features/accessories/list/list.component.html` (líneas 7 y 14-16)
+  - `retro-app/src/app/features/consoles/list/list.component.ts` (88-90: `hasActiveFilters()`;
+    98-105: `clearFilters()`), y equivalentes en juegos (76-78, 86-93) y accesorios (79-81, 89-96)
+  - `retro-app/src/styles.scss` (líneas 705-729: estilo `.btn-clear`, dentro de `.filters-bar`)
+
+- **Cómo verificar (comprobado por el humano el 29/09/2026):**
+  1. En cualquier lista, poner un filtro (texto o plataforma).
+  2. Debe aparecer el botón **"✕ Borrar filtros"** a la derecha de los desplegables.
+  3. Pulsarlo: el cuadro de búsqueda queda vacío, el desplegable vuelve a "Todas las plataformas",
+     la lista muestra todos los artículos y **el botón desaparece**.
+  4. Sin filtros puestos, el botón no se muestra.
+  5. Comprobar que después de borrar, el buscador sigue escribiendo con normalidad.
+
+- **Tests añadidos:** no aplica (misma razón que en C1).
+
+- **Rama de trabajo:** `mejoras-inventario` (`retro-app`).
+
+- **Detalle técnico:** el cuadro de búsqueda se limpia a través de su referencia de plantilla
+  (`#searchInput`), **no** enlazándolo al componente. Así el buscador mantiene su comportamiento
+  original y el botón no interfiere con lo que el usuario escribe.
+
+- **Estado:** ✅ Completada — confirmada por el humano el 29 de septiembre de 2026.
+
+---
+
+## Nota importante: intento descartado (filtros en la URL)
+
+Antes de esta versión se intentó resolver lo mismo guardando los filtros **en la URL**
+(`/consoles?search=anna&platform=PS2&page=2`), que es el patrón habitual en aplicaciones web. **Se
+descartó el 29/09/2026** por decisión del humano, después de comprobarlo en el navegador:
+
+- La lista **no cargaba al entrar** (se quedaba en el esqueleto de carga) y el buscador y el
+  desplegable **no filtraban**.
+- Escribir generaba **varias peticiones por palabra** (4 peticiones para 3 letras), lo que se
+  notaba como lentitud.
+- El intento tocaba 7 archivos (incluidas las plantillas, el manejo del buscador y la paginación) y
+  arreglar sus dos fallos habría añadido más complejidad todavía.
+
+Los dos fallos se localizaron y se corrigieron en su momento (el `combineLatest` necesitaba una
+emisión inicial, y el `debounceTime` estaba antes de juntar los flujos en lugar de después), pero
+la decisión fue volver atrás y hacerlo de la forma simple que describe C1. **Se documenta aquí para
+no repetir el error**: para filtros de lista en esta aplicación, el estado en memoria es suficiente
+y no justifica tocar la URL ni el manejo del buscador.
+
+---
+
+## Tareas futuras propuestas (sin aprobar)
+
+- **Mostrar el texto del buscador al volver a la lista.** Hoy la lista vuelve filtrada pero el
+  cuadro de texto se ve vacío. Se puede resolver guardando el término en el servicio y aplicándolo
+  al cuadro mediante una **referencia de plantilla o una directiva** (el mismo patrón imperativo que
+  usa el botón de borrar), sin volver a enlazar el buscador a un valor que dependa de una respuesta
+  del backend: eso fue lo que dio problemas en el intento descartado. Requiere aviso previo y
+  verificación en navegador.
+- **Botón de borrar filtros también en la vista de tabla vacía**: si el filtro no devuelve
+  resultados, hoy el usuario ve el mensaje de "no hay artículos" pero el botón ya está visible en la
+  barra, así que puede que no haga falta. Se deja apuntado por si el humano lo pide.
+
+---
+
 ## Notas de entorno aprendidas (útiles para las próximas tareas)
 
 - **`ng serve` no detecta archivos nuevos.** Si una tarea crea archivos (componentes, servicios,

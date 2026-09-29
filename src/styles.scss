@@ -701,6 +701,30 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   select {
     max-width: 220px;
   }
+
+  // Botón para quitar todos los filtros de la lista (solo aparece si hay alguno puesto).
+  .btn-clear {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: var(--border-input);
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+  }
 }
 
 .price-total {
