@@ -55,6 +55,7 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
     region: [''],
     status: [ItemStatus.GOOD, Validators.required],
     price: [0 as number | null],
+    total_price: [0 as number | null],
     acquisition_date: [''],
     store: [''],
     protective: [Protective.NONE],
@@ -86,6 +87,14 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
         else { this.syncComponentsDisabled(); }
       }),
     );
+
+    // Si hay precio del artículo y el total está vacío, se copia: no hubo gastos añadidos.
+    this.subs.push(
+      this.form.get('price')!.valueChanges.subscribe(() => {
+        const total = this.form.get('total_price');
+        if (!total?.value) total?.setValue(this.form.get('price')?.value ?? null, { emitEvent: false });
+      }),
+    );
   }
 
   ngOnDestroy(): void { this.subs.forEach((s) => s.unsubscribe()); }
@@ -107,6 +116,7 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
       status: (this.form.value.status as never) || ItemStatus.GOOD,
       description: this.form.value.description || null,
       price: this.form.value.price || null,
+      total_price: this.form.value.total_price || this.form.value.price || null,
       acquisition_date: this.form.value.acquisition_date || null,
       store: this.form.value.store || '-',
       protective: (this.form.value.protective as never) || Protective.NONE,
@@ -118,7 +128,7 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
   private loadItem(): void {
     this.service.getById(this.id).subscribe({
       next: (item) => {
-        this.form.patchValue({ name: item.name, model: item.model || '', platform: item.platform || '', region: item.region, status: item.status, price: item.price ? Number(item.price) : null, acquisition_date: item.acquisition_date || '', store: item.store === '-' ? '' : item.store, protective: item.protective || Protective.NONE, description: item.description || '', complete: item.complete });
+        this.form.patchValue({ name: item.name, model: item.model || '', platform: item.platform || '', region: item.region, status: item.status, price: item.price ? Number(item.price) : null, total_price: item.total_price ? Number(item.total_price) : (item.price ? Number(item.price) : null), acquisition_date: item.acquisition_date || '', store: item.store === '-' ? '' : item.store, protective: item.protective || Protective.NONE, description: item.description || '', complete: item.complete });
         this.selectedComponentIds.set(item.missing_components.map((c) => c.id));
         this.images.set(item.images);
         this.syncComponentsDisabled();

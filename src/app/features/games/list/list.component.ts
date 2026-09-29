@@ -23,7 +23,7 @@ export class GameListComponent implements OnInit, OnDestroy {
   protected platformFilter = signal('');
   protected readonly platforms = Object.values(Platform);
   protected readonly platformLabels = PlatformLabels;
-  protected totalPrice = computed(() => this.games().reduce((s, g) => s + (Number(g.price) || 0), 0));
+  protected totalPrice = computed(() => this.games().reduce((s, g) => s + (Number(g.total_price ?? g.price) || 0), 0));
   protected pageSize = 10;
   protected currentPage = signal(1);
   protected totalItems = computed(() => this.games().length);

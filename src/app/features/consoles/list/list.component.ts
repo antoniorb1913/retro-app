@@ -27,7 +27,7 @@ export class ConsoleListComponent implements OnInit, OnDestroy {
   protected platformFilter = signal('');
   protected readonly platforms = Object.values(Platform);
   protected readonly platformLabels = PlatformLabels;
-  protected totalPrice = computed(() => this.consoles().reduce((s, c) => s + (Number(c.price) || 0), 0));
+  protected totalPrice = computed(() => this.consoles().reduce((s, c) => s + (Number(c.total_price ?? c.price) || 0), 0));
 
   protected pageSize = 10;
   protected currentPage = signal(1);

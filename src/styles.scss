@@ -870,6 +870,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 0.75rem;
 }
 
+// Texto de ayuda bajo un campo del formulario (aclaraciones, no errores).
+.field-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
 .form-error {
   background: var(--danger-light);
   color: var(--danger);

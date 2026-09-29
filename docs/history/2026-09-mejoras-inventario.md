@@ -223,6 +223,69 @@ Solo se anotan aquí las tareas **verificadas y confirmadas por el humano**.
 
 ---
 
+## D1. Precio del artículo y precio total (parte de frontend)
+
+- **¿Qué realiza?:** añade a la aplicación el campo **"Total con gastos"** en los formularios, la
+  fila **"Precio total"** en las fichas de detalle y cambia la columna de las listas para mostrar y
+  sumar el **total** en lugar del precio del artículo. Todo en las tres secciones: consolas, juegos y
+  accesorios. La parte de backend (campo, migración, validación) está en
+  `retro-api/docs/history/2026-09-mejoras-inventario.md`.
+
+- **¿Por qué?:** el backend pasó a distinguir entre el precio del artículo y lo que costó con
+  gastos, y el frontend tenía que reflejarlo: sin esto, la app seguiría mostrando solo el precio del
+  artículo y no habría forma de registrar ni ver lo que se pagó de verdad. Además, la lista debe
+  sumar **totales** (lo invertido) y no precios de artículo, que es la cifra que interesa.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/models/item-base.interface.ts` (línea 14: `total_price` en la lectura;
+    línea 36: en la escritura)
+  - Formularios (mismo patrón en los tres):
+    - `consoles/form/form.component.ts` (59: control del formulario; 94-100: copia automática del
+      precio al total si el total está vacío; 126: se envía; 143: se rellena al editar)
+    - `consoles/form/form.component.html` (campo "Total con gastos" y su texto de ayuda)
+    - `games/form/form.component.ts` (59, 91-97, 121 y 133) y `games/form/form.component.html`
+    - `accessories/form/form.component.ts` (58, 90-96, 119 y 131) y
+      `accessories/form/form.component.html`
+  - Detalles: `consoles/detail/detail.component.html` (línea 87: fila "Precio total"),
+    `games/detail/detail.component.html` (66) y `accessories/detail/detail.component.html` (65)
+  - Listas: `consoles/list/list.component.html` (64: columna "Precio total") con su suma en
+    `consoles/list/list.component.ts` (30); igual en juegos (58 y 26) y accesorios (58 y 25)
+  - `retro-app/src/styles.scss` (líneas 878-883: estilo `.field-hint` para el texto de ayuda)
+
+- **Cómo verificar (comprobado por el humano el 29/09/2026):**
+  1. **Reiniciar el frontend** (`Ctrl + C` y `npm start`) y recargar con `Ctrl + Shift + R`.
+  2. **Artículo existente:** abrir para editar (ej. "Game Boy") → el campo **Total con gastos** ya
+     viene relleno con su precio.
+  3. **Alta sencilla:** precio 30 €, sin tocar el total → al guardar, el total queda en 30 €.
+  4. **Con gastos:** precio 30 € y total 37 € → se guardan los dos; el detalle muestra
+     **Precio artículo: 30 €** y **Precio total: 37 €**.
+  5. **Error controlado:** precio 30 € y total 20 € → mensaje *"El total no puede ser menor que el
+     precio del artículo"* y no guarda.
+  6. **La lista:** la columna se llama **"Precio total"**, muestra los totales y el "Total: X €" de
+     la barra suma totales.
+  7. **Orden:** pulsar la columna "Precio total" ordena por ese campo.
+  8. **El admin** (`http://localhost:8000/admin`): las dos columnas visibles y editables.
+  9. Repetir en **Juegos** y **Accesorios**.
+
+- **Tests añadidos:** no aplica en el frontend (sin infraestructura de tests todavía; tarea E1 del
+  plan). La lógica verificable está cubierta por los 6 tests del backend
+  (`inventory/tests/test_d1_precio_total.py`). La compilación de plantillas (`npm run build`) valida
+  el tipado de los campos nuevos en las tres secciones.
+
+- **Rama de trabajo:** `precio-y-compra` (`retro-app`).
+
+- **Archivos tocados:** 17 — la interfaz, los 3 formularios (`.ts` + `.html`), los 3 detalles
+  (`.html`), las 3 listas (`.ts` + `.html`) y `styles.scss`.
+
+- **Detalle de implementación:** si el usuario escribe un precio y deja el total vacío, el formulario
+  **copia el precio en el total** automáticamente. No se usa una validación que bloquee el guardado:
+  es una comodidad, y la regla de verdad (total ≥ precio) la aplica el backend. Así el frontend no
+  puede quedar más restrictivo que la API.
+
+- **Estado:** ✅ Completada — confirmada por el humano el 29 de septiembre de 2026.
+
+---
+
 ## Nota importante: intento descartado (filtros en la URL)
 
 Antes de esta versión se intentó resolver lo mismo guardando los filtros **en la URL**
