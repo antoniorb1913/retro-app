@@ -8,6 +8,8 @@ import { ApiService } from '../../../core/api.service';
 import { ImageUploadComponent } from '../../../shared/image-upload/image-upload.component';
 import { ItemStatus, ItemStatusLabels } from '../../../models/item-status.enum';
 import { Platform, PlatformLabels } from '../../../models/platform.enum';
+import { Protective, ProtectiveLabels } from '../../../models/protective.enum';
+import { Store, StoreLabels } from '../../../models/store.enum';
 import type { MissingComponent } from '../../../models/missing-component.interface';
 import type { AccessoryWrite } from '../../../models/accessory.interface';
 import type { ItemImage } from '../../../models/item-image.interface';
@@ -41,6 +43,10 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
   protected readonly statusLabels = ItemStatusLabels;
   protected readonly platforms = Object.values(Platform);
   protected readonly platformLabels = PlatformLabels;
+  protected readonly stores = Object.values(Store);
+  protected readonly storeLabels = StoreLabels;
+  protected readonly protectives = Object.values(Protective);
+  protected readonly protectiveLabels = ProtectiveLabels;
 
   protected form = this.fb.group({
     name: ['', Validators.required],
@@ -50,6 +56,8 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
     status: [ItemStatus.GOOD, Validators.required],
     price: [0 as number | null],
     acquisition_date: [''],
+    store: [''],
+    protective: [Protective.NONE],
     description: [''],
     complete: [false],
   });
@@ -100,6 +108,8 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
       description: this.form.value.description || null,
       price: this.form.value.price || null,
       acquisition_date: this.form.value.acquisition_date || null,
+      store: this.form.value.store || '-',
+      protective: (this.form.value.protective as never) || Protective.NONE,
       complete: this.form.value.complete || false,
       missing_component_ids: this.selectedComponentIds(),
     };
@@ -108,7 +118,7 @@ export class AccessoryFormComponent implements OnInit, OnDestroy {
   private loadItem(): void {
     this.service.getById(this.id).subscribe({
       next: (item) => {
-        this.form.patchValue({ name: item.name, model: item.model || '', platform: item.platform || '', region: item.region, status: item.status, price: item.price ? Number(item.price) : null, acquisition_date: item.acquisition_date || '', description: item.description || '', complete: item.complete });
+        this.form.patchValue({ name: item.name, model: item.model || '', platform: item.platform || '', region: item.region, status: item.status, price: item.price ? Number(item.price) : null, acquisition_date: item.acquisition_date || '', store: item.store === '-' ? '' : item.store, protective: item.protective || Protective.NONE, description: item.description || '', complete: item.complete });
         this.selectedComponentIds.set(item.missing_components.map((c) => c.id));
         this.images.set(item.images);
         this.syncComponentsDisabled();
