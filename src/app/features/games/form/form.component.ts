@@ -57,6 +57,7 @@ export class GameFormComponent implements OnInit, OnDestroy {
     status: [ItemStatus.GOOD, Validators.required],
     price: [0 as number | null],
     total_price: [0 as number | null],
+    purchase_url: [''],
     acquisition_date: [''],
     store: [''],
     protective: [Protective.NONE],
@@ -119,6 +120,7 @@ export class GameFormComponent implements OnInit, OnDestroy {
       description: this.form.value.description || null,
       price: this.form.value.price || null,
       total_price: this.form.value.total_price || this.form.value.price || null,
+      purchase_url: this.form.value.purchase_url || null,
       acquisition_date: this.form.value.acquisition_date || null,
       store: this.form.value.store || '-',
       protective: (this.form.value.protective as never) || Protective.NONE,
@@ -130,7 +132,7 @@ export class GameFormComponent implements OnInit, OnDestroy {
   private loadItem(): void {
     this.gameService.getById(this.id).subscribe({
       next: (game) => {
-        this.form.patchValue({ name: game.name, edition: game.edition || '', model: game.model || '', platform: game.platform || '', region: game.region, status: game.status, price: game.price ? Number(game.price) : null, total_price: game.total_price ? Number(game.total_price) : (game.price ? Number(game.price) : null), acquisition_date: game.acquisition_date || '', store: game.store === '-' ? '' : game.store, protective: game.protective || Protective.NONE, description: game.description || '', complete: game.complete });
+        this.form.patchValue({ name: game.name, edition: game.edition || '', model: game.model || '', platform: game.platform || '', region: game.region, status: game.status, price: game.price ? Number(game.price) : null, total_price: game.total_price ? Number(game.total_price) : (game.price ? Number(game.price) : null), purchase_url: game.purchase_url || '', acquisition_date: game.acquisition_date || '', store: game.store === '-' ? '' : game.store, protective: game.protective || Protective.NONE, description: game.description || '', complete: game.complete });
         this.selectedComponentIds.set(game.missing_components.map((c) => c.id));
         this.images.set(game.images);
         this.syncComponentsDisabled();
