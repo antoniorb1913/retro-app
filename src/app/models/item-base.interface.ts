@@ -10,6 +10,8 @@ export interface ItemBase {
   model: string | null;
   acquisition_date: string | null;
   price: string | null;
+  /** Lo que costó el artículo con todo (envío, comisiones...). Si está vacío, es igual a `price`. */
+  total_price: string | null;
   status: ItemStatus;
   status_display: string;
   description: string | null;
@@ -31,6 +33,7 @@ export interface ItemBaseWrite {
   model?: string | null;
   acquisition_date?: string | null;
   price?: number | null;
+  total_price?: number | null;
   status?: ItemStatus;
   description?: string | null;
   region?: string;

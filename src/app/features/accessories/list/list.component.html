@@ -55,7 +55,7 @@
           <th (click)="toggleOrder('name')">Nombre</th>
           <th (click)="toggleOrder('platform')">Plataforma</th>
           <th (click)="toggleOrder('status')">Estado</th>
-          <th (click)="toggleOrder('price')">Precio</th>
+          <th (click)="toggleOrder('total_price')">Precio total</th>
           <th>Completo</th>
           <th>Acciones</th>
         </tr>
@@ -66,7 +66,7 @@
             <td><a [routerLink]="['/accessories', item.id]" class="item-link">{{ item.name }}</a></td>
             <td>{{ item.platform_display || '—' }}</td>
             <td><span class="badge status-{{ item.status.toLowerCase() }}">{{ item.status_display }}</span></td>
-            <td>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</td>
+            <td>{{ (item.total_price ?? item.price) ? ((item.total_price ?? item.price) | number:'1.2-2') + ' €' : '—' }}</td>
             <td><span class="badge" [class.badge-complete]="item.complete" [class.badge-incomplete]="!item.complete">{{ item.complete ? 'Sí' : 'No' }}</span></td>
             <td class="actions">
               <a [routerLink]="['/accessories', item.id, 'edit']" class="btn-sm">Editar</a>

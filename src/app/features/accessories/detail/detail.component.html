@@ -61,7 +61,8 @@
             <div><dt>Plataforma</dt><dd>{{ item.platform_display || '—' }}</dd></div>
             <div><dt>Región</dt><dd>{{ item.region }}</dd></div>
             <div><dt>Estado</dt><dd><span class="badge status-{{ item.status.toLowerCase() }}">{{ item.status_display }}</span></dd></div>
-            <div><dt>Precio</dt><dd>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</dd></div>
+            <div><dt>Precio artículo</dt><dd>{{ item.price ? (item.price | number:'1.2-2') + ' €' : '—' }}</dd></div>
+            <div><dt>Precio total</dt><dd>{{ item.total_price ? (item.total_price | number:'1.2-2') + ' €' : '—' }}</dd></div>
             <div><dt>Fecha adq.</dt><dd>{{ item.acquisition_date ? (item.acquisition_date | date) : '—' }}</dd></div>
             <div><dt>Tienda</dt><dd>{{ storeLabel(item.store) }}</dd></div>
             <div><dt>Protección</dt><dd>{{ protectiveLabels[item.protective] || '—' }}</dd></div>

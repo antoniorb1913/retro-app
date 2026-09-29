@@ -27,8 +27,13 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="price">Precio (€)</label>
+        <label for="price">Precio del artículo (€)</label>
         <input id="price" type="number" step="0.01" formControlName="price" />
+      </div>
+      <div class="form-group">
+        <label for="totalPrice">Total con gastos (€)</label>
+        <input id="totalPrice" type="number" step="0.01" formControlName="total_price" placeholder="Igual que el precio del artículo" />
+        <span class="field-hint">Lo que te costó con envío y comisiones. Si lo dejas vacío, se usa el precio del artículo.</span>
       </div>
       <div class="form-group">
         <label for="acquisitionDate">Fecha adq.</label>

@@ -61,7 +61,7 @@
           <th (click)="toggleOrder('model')">Modelo</th>
           <th (click)="toggleOrder('platform')">Plataforma</th>
           <th (click)="toggleOrder('status')">Estado</th>
-          <th (click)="toggleOrder('price')">Precio</th>
+          <th (click)="toggleOrder('total_price')">Precio total</th>
           <th>Completo</th>
           <th>Acciones</th>
         </tr>
@@ -73,7 +73,7 @@
             <td>{{ console.model || '—' }}</td>
             <td>{{ console.platform_display || '—' }}</td>
             <td><span class="badge status-{{ console.status.toLowerCase() }}">{{ console.status_display }}</span></td>
-            <td>{{ console.price ? (console.price | number:'1.2-2') + ' €' : '—' }}</td>
+            <td>{{ (console.total_price ?? console.price) ? ((console.total_price ?? console.price) | number:'1.2-2') + ' €' : '—' }}</td>
             <td><span class="badge" [class.badge-complete]="console.complete" [class.badge-incomplete]="!console.complete">{{ console.complete ? 'Sí' : 'No' }}</span></td>
             <td class="actions">
               <a [routerLink]="['/consoles', console.id, 'edit']" class="btn-sm">Editar</a>

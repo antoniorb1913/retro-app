@@ -56,6 +56,7 @@ export class ConsoleFormComponent implements OnInit, OnDestroy {
     region: [''],
     status: [ItemStatus.GOOD, Validators.required],
     price: [0 as number | null],
+    total_price: [0 as number | null],
     acquisition_date: [''],
     store: [''],
     protective: [Protective.NONE],
@@ -90,6 +91,14 @@ export class ConsoleFormComponent implements OnInit, OnDestroy {
         else { this.syncComponentsDisabled(); }
       }),
     );
+
+    // Si hay precio del artículo y el total está vacío, se copia: no hubo gastos añadidos.
+    this.subs.push(
+      this.form.get('price')!.valueChanges.subscribe(() => {
+        const total = this.form.get('total_price');
+        if (!total?.value) total?.setValue(this.form.get('price')?.value ?? null, { emitEvent: false });
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -114,6 +123,7 @@ export class ConsoleFormComponent implements OnInit, OnDestroy {
       status: (this.form.value.status as never) || ItemStatus.GOOD,
       description: this.form.value.description || null,
       price: this.form.value.price || null,
+      total_price: this.form.value.total_price || this.form.value.price || null,
       acquisition_date: this.form.value.acquisition_date || null,
       store: this.form.value.store || '-',
       protective: (this.form.value.protective as never) || Protective.NONE,
@@ -130,6 +140,7 @@ export class ConsoleFormComponent implements OnInit, OnDestroy {
           platform: console.platform || '',
           region: console.region, status: console.status,
           price: console.price ? Number(console.price) : null,
+          total_price: console.total_price ? Number(console.total_price) : (console.price ? Number(console.price) : null),
           acquisition_date: console.acquisition_date || '', description: console.description || '',
           store: console.store === '-' ? '' : console.store,
           protective: console.protective || Protective.NONE,

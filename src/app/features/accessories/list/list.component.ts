@@ -22,7 +22,7 @@ export class AccessoryListComponent implements OnInit, OnDestroy {
   protected platformFilter = signal('');
   protected readonly platforms = Object.values(Platform);
   protected readonly platformLabels = PlatformLabels;
-  protected totalPrice = computed(() => this.accessories().reduce((s, a) => s + (Number(a.price) || 0), 0));
+  protected totalPrice = computed(() => this.accessories().reduce((s, a) => s + (Number(a.total_price ?? a.price) || 0), 0));
   protected pageSize = 10;
   protected currentPage = signal(1);
   protected totalItems = computed(() => this.accessories().length);
