@@ -12,6 +12,8 @@ export interface ItemBase {
   price: string | null;
   /** Lo que costó el artículo con todo (envío, comisiones...). Si está vacío, es igual a `price`. */
   total_price: string | null;
+  /** Enlace público del anuncio donde se compró, para poder volver a abrirlo. */
+  purchase_url: string | null;
   status: ItemStatus;
   status_display: string;
   description: string | null;
@@ -34,6 +36,7 @@ export interface ItemBaseWrite {
   acquisition_date?: string | null;
   price?: number | null;
   total_price?: number | null;
+  purchase_url?: string | null;
   status?: ItemStatus;
   description?: string | null;
   region?: string;

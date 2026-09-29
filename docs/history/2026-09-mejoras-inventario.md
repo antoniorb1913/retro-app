@@ -307,6 +307,57 @@ y no justifica tocar la URL ni el manejo del buscador.
 
 ---
 
+## D2. Enlace de compra y botón "Ver compra" (parte de frontend)
+
+- **¿Qué realiza?:** añade el campo **"Enlace de compra"** a los tres formularios (consolas, juegos
+  y accesorios) y un botón **"Ver compra"** en las tres fichas de detalle, junto a "Editar" y
+  "Eliminar", que abre el enlace **en pestaña nueva**. El botón **solo aparece si el artículo tiene
+  enlace**. La parte de backend (campo, migración, validación) está en
+  `retro-api/docs/history/2026-09-mejoras-inventario.md`.
+
+- **¿Por qué?:** el backend pasó a guardar el enlace del anuncio donde se compró cada artículo; sin
+  la parte de frontend no habría forma de rellenarlo ni de volver a abrirlo desde la ficha.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/models/item-base.interface.ts` (línea 16: `purchase_url` en la lectura;
+    línea 39: en la escritura)
+  - Formularios (mismo patrón en los tres):
+    - `consoles/form/form.component.ts` (60: control del formulario; 128: se envía; 146: se rellena
+      al editar) y `consoles/form/form.component.html` (62-63: campo "Enlace de compra")
+    - `games/form/form.component.ts` (60, 123 y 135) y `games/form/form.component.html` (38-39)
+    - `accessories/form/form.component.ts` (59, 121 y 133) y
+      `accessories/form/form.component.html` (34-35)
+  - Detalles: `consoles/detail/detail.component.html` (línea 39: botón "Ver compra"),
+    `games/detail/detail.component.html` (39) y `accessories/detail/detail.component.html` (39)
+
+- **Cómo verificar (comprobado por el humano el 29/09/2026):**
+  1. **Reiniciar el frontend** (`Ctrl + C` y `npm start`) y recargar con `Ctrl + Shift + R`.
+  2. **Editar** un artículo → al final del formulario aparece **"Enlace de compra"** con su texto de
+     ayuda.
+  3. Pegar un enlace real de un anuncio (Wallapop, Vinted, eBay...) y guardar.
+  4. **En la ficha** aparece el botón **"Ver compra"** → se abre en **pestaña nueva**.
+  5. **Un artículo sin enlace** → el botón **no se muestra** (ni deja hueco).
+  6. **Escribir basura** (`lo compre en la tienda`) → la API lo rechaza con un error visible.
+  7. **El enlace se puede borrar** volviendo a dejar el campo vacío.
+
+- **Tests añadidos:** no aplica en el frontend (sin infraestructura de tests todavía; tarea E1 del
+  plan). La lógica verificable está cubierta por los tests del backend
+  (`inventory/tests/test_d2_enlace_compra.py`).
+
+- **Seguridad:** el enlace se pinta con `[href]` (Angular escapa el valor; no se usa `innerHTML`) y
+  con **`target="_blank"` junto a `rel="noopener noreferrer"`**, para que la página destino no pueda
+  manipular la aplicación a través de `window.opener`. El esquema del enlace lo valida el backend
+  (solo `http`/`https`), así que el frontend nunca recibe un `javascript:`.
+
+- **Rama de trabajo:** `enlace-compra` (`retro-app`).
+
+- **Archivos tocados:** 10 — la interfaz, los 3 formularios (`.ts` + `.html`) y los 3 detalles
+  (`.html`).
+
+- **Estado:** ✅ Completada — confirmada por el humano el 29 de septiembre de 2026.
+
+---
+
 ## Tareas futuras propuestas (sin aprobar)
 
 - **Mostrar el texto del buscador al volver a la lista.** Hoy la lista vuelve filtrada pero el

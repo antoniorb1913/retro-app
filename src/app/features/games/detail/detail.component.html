@@ -35,6 +35,9 @@
     <div class="detail-header">
       <h2>{{ item.name }}</h2>
       <div class="detail-actions">
+        @if (item.purchase_url) {
+          <a [href]="item.purchase_url" target="_blank" rel="noopener noreferrer" class="btn-sm">Ver compra</a>
+        }
         <a [routerLink]="['/games', item.id, 'edit']" class="btn-sm">Editar</a>
         <button (click)="deleteGame(item.id)" class="btn-sm btn-danger">Eliminar</button>
       </div>
