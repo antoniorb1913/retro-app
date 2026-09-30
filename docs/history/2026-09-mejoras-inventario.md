@@ -436,6 +436,69 @@ y no justifica tocar la URL ni el manejo del buscador.
 
 ---
 
+## E1 (parte de frontend). Arreglar la infraestructura de tests y los primeros tests de verdad
+
+- **¿Qué realiza?:** deja **funcionando `npm test`** en el frontend y añade los primeros tests
+  automáticos de verdad (20 en total). Antes, la suite **no arrancaba**: `src/app/app.spec.ts` venía
+  de la plantilla de Angular, importaba `./app` (el archivo real es `app.component.ts`) y esperaba
+  un `<h1>Hello, retro-app</h1>` que ya no existe. Ese único archivo roto impedía ejecutar
+  **cualquier** test del proyecto.
+
+- **¿Por qué?:** sin tests no se puede verificar nada del frontend de forma automática. E7 se cerró
+  sin ellos y hubo que comprobarlo todo a mano (simulaciones, tokens reales y dos pruebas manuales
+  en el navegador). Esta tarea cierra ese punto ciego: a partir de ahora cada cambio de frontend
+  puede llevar su test, igual que ya pasa en el backend.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/app.spec.ts` (líneas 1-44): reescrito. Importa `./app.component`, provee
+    `provideRouter([])` y comprueba que el componente raíz arranca, que deja el `<router-outlet />`
+    y que **no** pinta menús ni cabeceras (eso es cosa de `layout.component`).
+  - `retro-app/src/app/core/auth.service.spec.ts` (nuevo, 17 tests):
+    - líneas 7-17: dos ayudantes que **construyen JWT de prueba** con `btoa`, sin librerías y sin
+      depender de la fecha real ni de la red.
+    - líneas 19-52: los **9 casos de `tokenCaducado()`** (válido, caduca en 1 s, caducado hace
+      10 min, caducado hace 8 días, sin `exp`, `exp` que no es número, texto que no es un JWT,
+      cadena vacía y nulo).
+    - líneas 63-107: si hay sesión aprovechable (sin token, token vivo, token caducado, basura) y
+      si hay refresh con el que renovar.
+    - líneas 109-147: la renovación del token, con el test clave
+      **"pide la renovación una sola vez aunque se le llame varias veces a la vez"** (4 llamadas →
+      **1** petición al servidor, y las 4 reciben su token), más el guardado del token nuevo y que
+      la siguiente renovación sí vuelve a pedirse.
+    - líneas 149-162: cerrar sesión borra los dos tokens y apaga la sesión.
+  - `retro-app/AGENTS.md` (§6.4): se sustituyó el aviso de "`npm test` NO arranca" por las reglas
+    que se derivan de esta tarea (dónde van los `.spec.ts`, limpiar `localStorage`, construir los
+    JWT en el test, `provideHttpClientTesting`, nombres de test en español).
+
+- **Cómo verificar:**
+  1. `cd retro-app && npm test` → deben salir **2 archivos y 20 tests, todos en verde**.
+  2. `npx prettier --check "src/app/app.spec.ts" "src/app/core/auth.service.spec.ts"` → en verde.
+  3. `npm run build` → compila y el bundle inicial sigue en ~313 kB (dentro del presupuesto).
+  4. **Comprobar que los tests sirven de verdad** (esto es lo importante, y se hizo):
+     - Quitar `if (this.#renovacion$) return this.#renovacion$;` de `auth.service.ts` → falla **1**
+       test con `Expected one matching request ... found 4 requests`.
+     - Cambiar `haySesionUtilizable()` por `return !!localStorage.getItem(...)` (el comportamiento
+       viejo) → fallan **exactamente 2** tests: el del token caducado y el del texto basura.
+     Restaurar el código después: los 20 tests vuelven a verde.
+
+- **Tests añadidos:** `src/app/core/auth.service.spec.ts` (17 tests) y `src/app/app.spec.ts`
+  (3 tests). Cubren la lógica de E7, que se había quedado sin cobertura.
+
+- **Rama de trabajo:** `main` (`retro-app`) — excepción justificada: es la reparación de la
+  herramienta de trabajo, no una funcionalidad nueva, y va junto con el `AGENTS.md` corregido.
+
+- **Archivos tocados:** 4 — `src/app/app.spec.ts` (reescrito),
+  `src/app/core/auth.service.spec.ts` (nuevo), `AGENTS.md` (las 3 copias) y `docs/PLAN.md`.
+  **No se tocó código de producción**: `git diff src/app/core/auth.service.ts` queda vacío.
+
+- **Deuda pendiente:** sigue sin decidirse si el backend adopta además `pytest` + `pytest-django`
+  (la parte de backend de E1). Y queda como tarea futura cubrir con tests el **interceptor** y el
+  **guard**, que necesitan `TestBed` + `HttpTestingController` y hoy no están probados.
+
+- **Estado:** ✅ Completada — confirmada por el humano el 30 de septiembre de 2026.
+
+---
+
 ## Tareas futuras propuestas (sin aprobar)
 
 - **Mostrar el texto del buscador al volver a la lista.** Hoy la lista vuelve filtrada pero el
