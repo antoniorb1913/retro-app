@@ -1,8 +1,8 @@
 # Historial — Mejoras de RETRO_INVENTORY (frontend)
 
 Documento de historial del listado de tareas **"Mejoras de RETRO_INVENTORY"** para el **frontend**
-(`retro-app`). El plan completo está en `docs/PLAN.md` (raíz del workspace); las tareas de backend
-se documentan en `retro-api/docs/history/`.
+(`retro-app`). El plan completo está en `retro-api/docs/PLAN.md` (dentro del repo del backend, para
+que quede versionado); las tareas de backend se documentan en `retro-api/docs/history/`.
 
 Solo se anotan aquí las tareas **verificadas y confirmadas por el humano**.
 
@@ -488,7 +488,7 @@ y no justifica tocar la URL ni el manejo del buscador.
   herramienta de trabajo, no una funcionalidad nueva, y va junto con el `AGENTS.md` corregido.
 
 - **Archivos tocados:** 4 — `src/app/app.spec.ts` (reescrito),
-  `src/app/core/auth.service.spec.ts` (nuevo), `AGENTS.md` (las 3 copias) y `docs/PLAN.md`.
+  `src/app/core/auth.service.spec.ts` (nuevo), `AGENTS.md` (las 3 copias) y `retro-api/docs/PLAN.md`.
   **No se tocó código de producción**: `git diff src/app/core/auth.service.ts` queda vacío.
 
 - **Deuda pendiente:** sigue sin decidirse si el backend adopta además `pytest` + `pytest-django`
