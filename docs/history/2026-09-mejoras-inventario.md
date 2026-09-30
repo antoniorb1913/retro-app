@@ -358,6 +358,84 @@ y no justifica tocar la URL ni el manejo del buscador.
 
 ---
 
+## E7. Manejo de la sesión en el frontend (token caducado y renovación compartida)
+
+- **¿Qué realiza?:** arregla los dos fallos que tenía la sesión en el frontend:
+  1. **El guard ya mira si el token ha caducado.** Antes solo comprobaba que *existiera* algo en
+     `localStorage`, así que un token caducado —o incluso un texto inventado— contaba como sesión
+     válida y te dejaba entrar. Ahora, si el token no sirve pero hay refresh, **lo renueva y te deja
+     entrar**; si no hay arreglo posible, **te manda al login**.
+  2. **La renovación del token se pide una sola vez.** Antes, cada respuesta 401 lanzaba su propio
+     `refresh`. Ahora todas las peticiones que reciben un 401 a la vez **comparten una única
+     petición** de renovación y esperan a ella. Además, si la renovación falla, **se limpia la sesión
+     y se navega al login** (antes solo se borraban los tokens y te quedabas en una pantalla que
+     fallaba sin explicación).
+
+- **¿Por qué?:** dos problemas reales detectados en la lectura del código (apuntados como §11.13 y
+  §11.14 de `AGENTS.md`):
+  - El `authGuard` daba por buena cualquier cosa escrita en `localStorage`.
+  - El interceptor no agrupaba las renovaciones. Ejemplo real: al entrar en Inicio con el token
+    caducado, el dashboard pide consolas, juegos y accesorios **en paralelo**; las tres peticiones
+    reciben 401 y lanzaban **tres renovaciones**. Esto se agrava con el freno de intentos de la tarea
+    E6 (el refresh está limitado a **10/minuto**): una pantalla que dispare muchas peticiones a la vez
+    podía agotar el límite y **expulsar al usuario sin motivo**.
+
+- **Dónde verlo:**
+  - `retro-app/src/app/core/auth.service.ts` (líneas 17-38: función `tokenCaducado()`, que lee el
+    campo `exp` del propio token; línea 43: el estado inicial de la sesión ya usa esa comprobación;
+    líneas 52-95: la renovación compartida `#renovacion$` con `shareReplay`, que se olvida al
+    terminar para que la próxima renovación sea una petición nueva; líneas 112-122:
+    `tieneRefreshToken()`, `actualizarEstadoSesion()` y `haySesionUtilizable()`)
+  - `retro-app/src/app/core/auth.guard.ts` (líneas 22-41: entra si la sesión sirve; si no, renueva y
+    entra; si no puede renovar, al login)
+  - `retro-app/src/app/core/auth.interceptor.ts` (líneas 24-26: las rutas de token no se reintentan;
+    líneas 41-53: usa la renovación compartida y, si falla, `logout()` + navegación a `/login`)
+  - `retro-app/src/app/core/auth.service.ts` (líneas 119-123: `haySesionUtilizable()`, el cálculo que
+    cierra el agujero)
+
+- **Cómo verificar (comprobado por el humano el 30/09/2026):**
+  1. **Recargar** la app con `Ctrl + Shift + R` y entrar con tu cuenta → funciona igual que siempre.
+  2. **Navegar** por Inicio, Consolas, Juegos, Accesorios y una ficha → todo normal.
+  3. **Token estropeado, con refresh bueno** *(el caso que antes fallaba en silencio)*: en
+     **DevTools → Application → Local Storage → `http://localhost:4200`**, pon `access_token` =
+     `basura` y recarga. **Resultado comprobado: la app renueva sola el token y te deja entrar**; al
+     mirar otra vez el `Local Storage`, `access_token` vuelve a ser un token largo y válido.
+     *(Antes entraba con la basura y las peticiones fallaban una detrás de otra.)*
+  4. **Token y refresh estropeados** *(sesión terminada de verdad)*: pon también `refresh_token` =
+     `basura` y recarga. **Resultado comprobado: te manda al login** y en la consola se ve
+     `POST /api/api/token/refresh/ 401 (Unauthorized)`. *(Antes te quedabas en la pantalla con
+     errores y sin saber por qué.)*
+  5. Volver a entrar con la cuenta: la sesión se arregla sola.
+
+- **Tests añadidos:** **no** (ver "Deuda pendiente" abajo). La infraestructura de tests del frontend
+  está rota (tarea E1 del plan), así que la verificación se hizo con:
+  - **Prueba del fallo antes del arreglo**, con tokens JWT reales: el guard antiguo dejaba entrar con
+    un token caducado **y con la cadena `esto.no.es.un.jwt`**; el nuevo rechaza los dos.
+  - **8 casos de caducidad** sobre la función real extraída del archivo: token válido, de 7 días,
+    que caduca en 1 segundo, caducado hace 10 minutos, caducado hace 8 días, sin fecha `exp`, texto
+    que no es un JWT y cadena vacía → **todos correctos**.
+  - **Simulación del interceptor con RxJS**: con 4 peticiones recibiendo 401 a la vez, antes se
+    lanzaban **4** renovaciones al servidor y ahora **1**, recibiendo las 4 su token.
+  - **Prueba contra la API real**: un token caducado firmado por el servidor devuelve **401**
+    (`"Token is expired"`), y su refresh vivo devuelve **200** con un token nuevo que la función de
+    caducidad reconoce como válido.
+  - `npm run build` en verde (313,26 kB, dentro del presupuesto).
+
+- **Rama de trabajo:** `sesion-frontend` (`retro-app`).
+
+- **Archivos tocados:** 3 — `core/auth.service.ts`, `core/auth.guard.ts` y
+  `core/auth.interceptor.ts`. **No se tocó el backend ni el contrato de la API.**
+
+- **Deuda pendiente (anotada, no resuelta aquí):** esta tarea **no lleva tests automáticos** porque
+  `npm test` no arranca: `src/app/app.spec.ts` es un resto de la plantilla de Angular que importa
+  `./app` (el archivo real es `app.component.ts`). Mientras eso no se arregle, ningún cambio de
+  frontend se puede cubrir con tests. Es la tarea **E1** del plan y conviene hacerla antes de seguir
+  con más lógica de frontend.
+
+- **Estado:** ✅ Completada — confirmada por el humano el 30 de septiembre de 2026.
+
+---
+
 ## Tareas futuras propuestas (sin aprobar)
 
 - **Mostrar el texto del buscador al volver a la lista.** Hoy la lista vuelve filtrada pero el
